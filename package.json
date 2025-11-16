@@ -23,8 +23,7 @@
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
-    "serverless-http": "^4.0.0",
-    "vercel": "^48.10.2"
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@netlify/esbuild": "^0.14.39-1",
@@ -39,3 +38,4 @@
     "typescript": "^5.9.3"
   }
 }
+
