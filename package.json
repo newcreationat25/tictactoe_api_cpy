@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "tsc",
+    "build": "netlify deploy --prod --dir=build --functions=netlify/functions",
     "start": "ts-node src/index.ts"
   },
   "keywords": [],
@@ -38,3 +38,4 @@
     "typescript": "^5.9.3"
   }
 }
+
