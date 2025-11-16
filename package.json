@@ -1,29 +1,39 @@
 {
   "name": "tictactoe-api",
   "version": "1.0.0",
+  "description": "",
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "echo 'Vercel builds serverless functions automatically'",
+    "build": "",
     "start": "ts-node src/index.ts"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
+    "@netlify/functions": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "netlify-cli": "^23.11.0",
+    "netlify-lambda": "^2.0.16",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.10",
     "pg": "^8.16.3",
-    "serverless-http": "^4.0.0"
+    "serverless-http": "^4.0.0",
+    "vercel": "^48.10.2"
   },
   "devDependencies": {
+    "@netlify/esbuild": "^0.14.39-1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
     "drizzle-kit": "^0.31.6",
-    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"

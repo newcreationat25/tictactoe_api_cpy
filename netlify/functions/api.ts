@@ -21,7 +21,6 @@ app.get("/", (req: Request, res: Response) => {
 import appRoute from "../../src/routes/auth";
 app.use("/auth", appRoute);
 
-// ❌ DO NOT USE app.listen()
-// Netlify handles the server automatically
+
 
 export const handler = serverless(app);

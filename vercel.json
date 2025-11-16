@@ -1,11 +1,12 @@
 {
-  "version": 3,
-  "framework": "node",
-  "buildCommand": "npm install",
-  "outputDirectory": ".",
+  "version": 2,
   "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs20.x"
+    "api/index.ts": {
+      "runtime": "nodejs18.x"
     }
-  }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "api/index.ts" },
+    { "src": "/(.*)", "dest": "api/index.ts" }
+  ]
 }
