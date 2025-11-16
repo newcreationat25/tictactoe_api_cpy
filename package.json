@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "netlify deploy --prod --dir=build --functions=netlify/functions",
+    "build": "netlify deploy --prod",
     "start": "ts-node src/index.ts"
   },
   "keywords": [],
@@ -23,7 +23,8 @@
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
-    "serverless-http": "^4.0.0"
+    "serverless-http": "^4.0.0",
+    "vercel": "^48.10.2"
   },
   "devDependencies": {
     "@netlify/esbuild": "^0.14.39-1",
@@ -38,4 +39,3 @@
     "typescript": "^5.9.3"
   }
 }
-
