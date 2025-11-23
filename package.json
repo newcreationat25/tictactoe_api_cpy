@@ -1,9 +1,9 @@
 {
   "name": "tictactoe-api",
   "version": "1.0.0",
-  "scripts": {
+   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node api/server.ts",
     "build": "tsc"
   },
   "dependencies": {
@@ -27,3 +27,4 @@
     "typescript": "^5.9.3"
   }
 }
+
