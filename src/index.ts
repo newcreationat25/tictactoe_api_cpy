@@ -13,4 +13,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", appRoute);
 
-export default app;
+export const handler = app;
+
+
