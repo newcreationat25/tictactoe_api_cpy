@@ -17,6 +17,7 @@ if (!process.env.DATABASE_URL) {
 // Initialize PostgreSQL connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 // Initialize Drizzle
@@ -33,4 +34,5 @@ async function testConnection() {
 }
 
 testConnection();
+
 export default db;
