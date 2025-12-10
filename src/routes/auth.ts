@@ -4,6 +4,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import db from "../db/db";
 import { users } from "../schema/user";
+import { sendError, sendSuccess } from "../utils/responseBuilder";
 require("dotenv").config();
 
 
@@ -119,101 +120,53 @@ appRoute.post('/refresh-token', async (req: Request, res: Response) => {
 });
 
 
-// POST /generate-token
-// appRoute.post('/authenticate', async (req: Request, res: Response) => {
-//   const responseObj = new reponse();
-
-//   try {
-//     console.log("Incoming Body:", req.body);
-
-//     const body = req.body.data || req.body;
-//     const { email, id } = typeof body === 'string' ? JSON.parse(body) : body;
-//     console.log("Incoming Body:", email, "id:", id);
-
-//     if (!email || !id) {
-//       const errObj = new error();
-//       errObj.code = 400;
-//       errObj.details = 'Email and userId are required';
-
-//       responseObj.status = false;
-//       responseObj.message = 'Validation failed';
-//       responseObj.data = null as any;
-//       responseObj.error = errObj;
-
-//       return res.status(400).json(responseObj);
-//     }
-
-//     const token = jwt.sign({ email, id }, JWT_SECRET, { expiresIn: '1h' });
-
-//     responseObj.status = true;
-//     responseObj.message = 'Token generated successfully';
-//     responseObj.data = JSON.stringify({ token }); // ✅ Not stringified!
-//     responseObj.error = new error();
-//     console.log("responseObj : ", responseObj);
-//     return res.status(200).json(responseObj);
-//   } catch (err: any) {
-//     console.error("Authenticate Error:", err);
-
-//     const errObj = new error();
-//     errObj.code = 500;
-//     errObj.details = err.message || 'Internal Server Error';
-
-//     responseObj.status = false;
-//     responseObj.message = 'Internal Server Error';
-//     responseObj.data = null as any;
-//     responseObj.error = errObj;
-
-//     return res.status(500).json(responseObj);
-//   }
-// });
 
 
 
-appRoute.post('/login', async (req: Request, res: Response) => {
-  const responseObj = new reponse();
-
+appRoute.post("/login", async (req: Request, res: Response) => {
   try {
     console.log("Incoming Body:", req.body);
 
-    const body = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body.data;
+    // Parse request body
+    const body =
+      typeof req.body.data === "string"
+        ? JSON.parse(req.body.data)
+        : req.body.data;
 
-    const { userName: username, email, photoUrl: profilePicture, id: googleUserId } = body;
+    const {
+      userName: username,
+      email,
+      photoUrl: profilePicture,
+      id: googleUserId,
+    } = body;
 
+    // 🛑 Required fields check
     if (!email || !googleUserId || !username) {
-      const errObj = new error();
-      errObj.code = 400;
-      errObj.details = "username, email & google user id are required";
-
-      responseObj.status = false;
-      responseObj.message = "Validation Failed";
-      responseObj.data = null;
-      responseObj.error = errObj;
-
-      return res.status(400).json(responseObj);
+      return res
+        .status(400)
+        .json(sendError("Validation Failed", 400, "username, email & google user id are required"));
     }
 
-    // 🔐 Generate Access + Refresh Tokens
-    const accessToken = jwt.sign(
-      { email, googleUserId },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    // 🔐 Generate Tokens
+    const accessToken = jwt.sign({ email, googleUserId }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
-    const refreshToken = jwt.sign(
-      { email, googleUserId },
-      JWT_SECRET,
-      { expiresIn: "180d" }
-    );
+    const refreshToken = jwt.sign({ email, googleUserId }, JWT_SECRET, {
+      expiresIn: "180d",
+    });
 
-    // Store refreshToken in DB OR Redis (recommended)
-    // For now storing directly in DB user table (simple)
-    const password = ""; // Google users don't have password
-
+    const password = ""; // Google user → no password required
     let user: any;
-    const existing = await db.select().from(users).where(eq(users.email, email));
+
+    // 🔍 Check if user exists
+    const existing = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
 
     if (existing.length > 0) {
-      // update user
+      // 🔁 Update existing user
       const updated = await db
         .update(users)
         .set({
@@ -221,17 +174,24 @@ appRoute.post('/login', async (req: Request, res: Response) => {
           email,
           profilePicture,
           googleUserId,
-          password
-         // refreshToken, // save refresh
+          password,
         })
         .where(eq(users.email, email))
         .returning();
 
       user = updated[0];
 
-      responseObj.message = "User updated & logged in";
+      return res.status(200).json(
+        sendSuccess(
+          res,
+          true,
+          "User updated & logged in",
+          { user, accessToken, refreshToken }
+          
+        )
+      );
     } else {
-      // insert new user
+      // ➕ Create new user
       const inserted = await db
         .insert(users)
         .values({
@@ -239,38 +199,46 @@ appRoute.post('/login', async (req: Request, res: Response) => {
           email,
           profilePicture,
           password,
-          googleUserId
+          googleUserId,
         })
         .returning();
 
       user = inserted[0];
 
-      responseObj.message = "User created & logged in successfully";
+      return res.status(200).json(
+        sendSuccess(
+          res,
+          true,
+          "User created & logged in successfully",
+          { user, accessToken, refreshToken }
+          
+        )
+      );
     }
-
-    // Construct response object
-    responseObj.status = true;
-    responseObj.data = JSON.stringify({
-      user,
-      accessToken,
-      refreshToken,
-    });
-    responseObj.error = new error();
-
-    return res.status(200).json(responseObj);
   } catch (err: any) {
-    console.log("Error:", err);
+    console.error("Login Error:", err);
 
-    const errObj = new error();
-    errObj.code = 500;
-    errObj.details = err.message;
+    return res
+      .status(500)
+      .json(sendError("Internal Server Error", 500, err.message));
+  }
+});
 
-    responseObj.status = false;
-    responseObj.message = "Internal Server Error";
-    responseObj.data = null;
-    responseObj.error = errObj;
+// GET /users
+appRoute.post("/users", authenticateJWT, async (req: Request, res: Response) => {
+  try {
+    const allUsers = await db.select().from(users);
 
-    return res.status(500).json(responseObj);
+    return res.status(200).json(
+      sendSuccess(res, true, "Users fetched successfully", {
+        users: allUsers,
+      })
+    );
+  } catch (err: any) {
+    console.error("Fetch Users Error:", err);
+    return res
+      .status(500)
+      .json(sendError("Failed to fetch users", 500, err.message));
   }
 });
 
