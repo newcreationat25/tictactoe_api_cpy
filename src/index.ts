@@ -12,7 +12,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", appRoute);
-
+app.use("/analytics", analyticsRoute);
 export const handler = app;
+
 
 
