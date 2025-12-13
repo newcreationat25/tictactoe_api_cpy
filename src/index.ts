@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import appRoute from "./routes/auth";
+import analyticsRoute from "./routes/analytics";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
 
 
 export const handler = app;
+
 
 
 
